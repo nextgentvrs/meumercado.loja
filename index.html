@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mercado Vendedor</title>
+<meta name="theme-color" content="#14231A">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#FAFAF7;--card:#fff;--ink:#14231A;--mut:#5B6B62;--line:#DDE3DD;--ac:#1F7A4D;--acink:#fff;--warn:#C2410C;--chip:#EEF1EC;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1511;--card:#17211B;--ink:#EAF2EC;--mut:#9DB0A3;--line:#2A3830;--warn:#FB923C;--chip:#1F2C24;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0}h2{font-size:17px;margin:0 0 12px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--mut)}
+label.ck{flex-direction:row;align-items:center;gap:10px;font-size:14px;color:var(--ink)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:0 12px;height:46px;width:100%}
+input[type=checkbox]{width:20px;height:20px}input[type=file]{padding:9px 12px;height:auto}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+.vr{display:grid;grid-template-columns:1fr 100px 80px 46px;gap:8px;margin-bottom:8px;align-items:end}
+.btn{border:0;border-radius:999px;background:var(--ac);color:var(--acink);font:600 15px inherit;font-family:inherit;min-height:46px;padding:0 20px;cursor:pointer}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}.btn.sm{min-height:40px;padding:0 14px;font-size:13px}
+.btn:disabled{opacity:.5}
+.ic{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--warn);font-size:20px;cursor:pointer}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center}
+.p{border-top:1px solid var(--line);padding:14px 0}.p:first-child{border-top:0}
+.ph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.pn{font-weight:700}.meta{font-size:12px;color:var(--mut)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--mut);margin-left:6px}
+.tag.w{color:var(--warn)}.tag.g{color:var(--ac)}
+.v{display:flex;justify-content:space-between;gap:10px;padding:6px 0 0;font-size:14px}.pr{font-weight:700}
+.msg{font-size:14px;margin-top:10px;min-height:20px}.e{color:var(--warn)}
+.empty{color:var(--mut);text-align:center;padding:24px 0}
+.tabs{display:flex;gap:4px;background:var(--chip);padding:4px;border-radius:999px;margin-bottom:14px}.tabs button{flex:1;border:0;background:none;color:var(--mut);border-radius:999px;font:600 14px inherit;font-family:inherit;min-height:44px;cursor:pointer}.tabs button.on{background:var(--ac);color:var(--acink)}a{color:var(--ac)}
+.hide{display:none!important}.login{max-width:380px;margin:12vh auto 0}
+.logo{display:inline-flex;width:44px;height:44px;border-radius:12px;background:var(--ac);color:var(--acink);align-items:center;justify-content:center;font-size:24px;margin-right:10px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="vL" class="login card"><h1 style="margin-bottom:16px">Painel do mercado</h1>
+<label style="margin-bottom:12px">E-mail<input id="le" type="email" autocomplete="username"></label>
+<label style="margin-bottom:16px">Senha<input id="lp" type="password" autocomplete="current-password"></label>
+<button class="btn" id="lb" style="width:100%" type="button">Entrar</button><div class="msg e" id="lm" role="alert"></div></div>
+
+<div id="vA" class="hide">
+<div class="top"><div><span class="logo" id="mi"></span><h1 style="display:inline;vertical-align:middle" id="mn"></h1><div class="meta" id="mp"></div></div><div class="bar" style="margin:0"><button class="btn sm hide" id="inst" type="button">Instalar app</button><button class="btn ghost sm" id="out" type="button">Sair</button></div></div>
+
+<div class="tabs"><button class="on" data-tab="sPed" type="button">Pedidos</button><button data-tab="sProd" type="button">Produtos</button><button data-tab="sRec" type="button">Recibos e loja</button></div>
+<div id="sPed"><div class="card"><h2>Pedidos em aberto (<span id="ocnt">0</span>)</h2><div class="bar" style="margin:0 0 10px"><button class="btn ghost sm" id="rel" type="button">Atualizar</button></div><div id="olist"></div></div></div>
+<div id="sRec" class="hide"><div class="card"><h2>Recibos dos pedidos concluídos</h2><div class="meta" id="rsum"></div><div id="rlist"></div></div>
+<div class="card"><h2>Configurações da loja</h2><div class="row"><label>Chave Pix do mercado<input id="pix" type="text" placeholder="CNPJ, telefone ou e-mail"></label><label class="ck" style="align-self:end"><input id="dlv" type="checkbox"> O mercado faz entrega</label></div><button class="btn sm" id="scfg" type="button">Salvar</button><div class="msg" id="cmsg" role="status"></div></div></div>
+<div id="sProd" class="hide">
+<div class="card"><h2 id="ft">Cadastrar produto</h2>
+<label style="margin-bottom:12px">Nome do produto<input id="nome" type="text" placeholder="Ex.: Refrigerante Coca-Cola 2L"></label>
+<div class="row"><label>Categoria<select id="cat"></select></label>
+<label>Unidade de venda<select id="un"><option>un</option><option>kg</option><option>pacote</option><option>caixa</option><option>litro</option><option>dúzia</option><option>bandeja</option></select></label></div>
+<label class="ck" style="margin-bottom:12px"><input id="promo" type="checkbox"> Produto em promoção (aparece na tela inicial do cliente)</label>
+<div class="row"><label>Preço antigo “de” (opcional)<input id="old" type="text" inputmode="decimal" placeholder="0,00"></label>
+<label>Foto (opcional, usa 1 vaga do plano)<input id="foto" type="file" accept="image/*"></label></div>
+<div id="pv" class="bar" style="margin:0 0 12px"></div>
+<div style="font-size:13px;font-weight:600;color:var(--mut);margin-bottom:8px">Variações, preço e estoque (estoque vazio = não controlar)</div>
+<div id="vars"></div>
+<div class="bar"><button class="btn ghost sm" id="addv" type="button">+ Adicionar variação</button></div>
+<div class="bar" style="margin-top:16px"><button class="btn" id="save" type="button">Salvar produto</button><button class="btn ghost hide" id="cancel" type="button">Cancelar edição</button></div>
+<div class="msg" id="msg" role="status"></div></div>
+
+<div class="card"><h2>Produtos e estoque (<span id="cnt">0</span>)</h2>
+<div class="row" style="margin-bottom:8px"><label>Buscar<input id="q1" type="search" placeholder="Nome do produto"></label><label>Categoria<select id="f1"></select></label></div>
+<div id="list"></div></div></div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyC8bpWFnRiL-PLc5ky63171TfaId0Ygb3s",authDomain:"my-market-9984a.firebaseapp.com",projectId:"my-market-9984a",storageBucket:"my-market-9984a.firebasestorage.app",messagingSenderId:"654372852018",appId:"1:654372852018:web:7a7e85ce30b02cd8ee872b"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);
+const $=i=>document.getElementById(i);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const num=s=>{const v=parseFloat(String(s).trim().replace(/\./g,"").replace(",","."));return isNaN(v)?null:v};
+const CATS=["Hortifruti","Açougue e peixaria","Padaria","Frios e laticínios","Mercearia","Biscoitos e doces","Bebidas","Limpeza","Higiene e beleza","Congelados","Pet","Bazar e utilidades","Bomboniere","Outros"];
+const errTxt=e=>({"auth/invalid-credential":"E-mail ou senha incorretos.","auth/invalid-email":"E-mail inválido.","auth/too-many-requests":"Muitas tentativas. Aguarde um pouco.","permission-denied":"Sem permissão. Confira as regras do banco."}[e.code]||("Erro: "+(e.code||e.message)));
+$("cat").innerHTML=CATS.map(c=>"<option>"+esc(c)+"</option>").join("");
+$("f1").innerHTML='<option value="Todas">Todas as categorias</option>'+$("cat").innerHTML;
+
+let M=null,MID=null,prods=[],editing=null,curPhoto="",photoChanged=false;
+$("lb").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("le").value.trim(),$("lp").value)}catch(e){$("lm").textContent=errTxt(e)}};
+$("lp").onkeydown=e=>{if(e.key==="Enter")$("lb").click()};
+$("out").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,async u=>{
+  $("vL").classList.toggle("hide",!!u);$("vA").classList.toggle("hide",!u);if(!u)return;
+  try{
+    const us=await getDoc(doc(db,"users",u.uid));
+    if(!us.exists()){alert("Este login não está ligado a nenhum mercado.");signOut(auth);return}
+    MID=us.data().marketId;M=(await getDoc(doc(db,"markets",MID))).data();
+    if(!M.active){alert("Este mercado está desativado. Fale com a Next Gen TV.");signOut(auth);return}
+    const c=M.colors||{};document.documentElement.style.setProperty("--ac",c.primary||"#1F7A4D");document.documentElement.style.setProperty("--acink",c.onPrimary||"#fff");
+    $("mi").textContent=M.icon||"🛒";$("mn").textContent=M.name;resetForm();await loadProds();await loadCfg();await loadOrders();
+  }catch(e){alert(errTxt(e));signOut(auth)}
+});
+const col=n=>collection(db,"markets",MID,n);
+async function loadProds(){const s=await getDocs(col("products"));prods=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||"").localeCompare(b.name||""));renderList()}
+const used=ex=>prods.filter(p=>p.hasPhoto&&p.id!==ex).length;
+function say(t,k){const m=$("msg");m.textContent=t;m.className="msg "+(k||"")}
+function varRow(n,p,s){const d=document.createElement("div");d.className="vr";
+d.innerHTML='<label>Variação<input class="vn" type="text" placeholder="Ex.: sabor chocolate" value="'+esc(n||"")+'"></label><label>Preço (R$)<input class="vp" type="text" inputmode="decimal" placeholder="0,00" value="'+(p==null?"":String(p).replace(".",","))+'"></label><label>Estoque<input class="vs" type="text" inputmode="numeric" placeholder="—" value="'+(s==null?"":s)+'"></label><button type="button" class="ic" aria-label="Remover variação" data-rm="1">×</button>';$("vars").appendChild(d)}
+function showPv(){$("pv").innerHTML=curPhoto?'<img src="'+curPhoto+'" alt="Foto do produto" style="width:96px;height:96px;object-fit:cover;border-radius:10px"><button class="btn ghost sm" data-rp="1" type="button">Remover foto</button>':""}
+function resetForm(){editing=null;curPhoto="";photoChanged=false;$("nome").value="";$("cat").selectedIndex=0;$("un").selectedIndex=0;$("promo").checked=false;$("old").value="";$("foto").value="";$("vars").innerHTML="";varRow();showPv();$("ft").textContent="Cadastrar produto";$("cancel").classList.add("hide");$("save").textContent="Salvar produto";
+  $("mp").textContent="Vagas de foto: "+used(null)+" de "+M.plan.photos+" · Campanhas por mês: "+M.plan.campaigns}
+function compress(file,cb){const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);let u=c.toDataURL("image/webp",.6);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",.6);if(u.length>150000)u=c.toDataURL("image/jpeg",.4);cb(u)};im.src=fr.result};fr.readAsDataURL(file)}
+$("foto").onchange=function(){const f=this.files[0];if(f)compress(f,u=>{curPhoto=u;photoChanged=true;showPv()})};
+$("addv").onclick=()=>varRow();
+$("cancel").onclick=()=>{resetForm();say("")};
+$("save").onclick=async()=>{
+  const name=$("nome").value.trim();if(!name){say("Digite o nome do produto.","e");return}
+  const vs=[];let bad=false;
+  document.querySelectorAll("#vars .vr").forEach(r=>{const n=r.querySelector(".vn").value.trim(),pt=r.querySelector(".vp").value.trim(),st=r.querySelector(".vs").value.trim();if(!n&&!pt)return;const p=num(pt);if(p==null||p<0){bad=true;return}const s=st===""?null:parseInt(st,10);if(s!=null&&(isNaN(s)||s<0)){bad=true;return}vs.push({n,p,s})});
+  if(bad||!vs.length){say("Informe pelo menos um preço válido (ex.: 5,99) e estoque só com números.","e");return}
+  if(curPhoto&&used(editing)>=M.plan.photos){say("Seu plano tem "+M.plan.photos+" vagas de foto, todas usadas. Remova uma foto ou peça um plano maior.","e");return}
+  $("save").disabled=true;
+  try{
+    const id=editing||doc(col("products")).id,b=writeBatch(db);
+    b.set(doc(db,"markets",MID,"products",id),{name,cat:$("cat").value,un:$("un").value,out:editing?(prods.find(x=>x.id===id).out||false):false,promo:$("promo").checked,old:num($("old").value),hasPhoto:!!curPhoto,vars:vs,updatedAt:serverTimestamp()});
+    if(photoChanged){if(curPhoto)b.set(doc(db,"markets",MID,"photos",id),{data:curPhoto});else b.delete(doc(db,"markets",MID,"photos",id))}
+    await b.commit();await loadProds();resetForm();say("Produto salvo.")
+  }catch(e){say(errTxt(e),"e")}finally{$("save").disabled=false}
+};
+const match=(p,q,c)=>(c==="Todas"||p.cat===c)&&(!q||(p.name+" "+p.vars.map(v=>v.n).join(" ")).toLowerCase().includes(q.toLowerCase()));
+function renderList(){const q=$("q1").value,c=$("f1").value,l=prods.filter(p=>match(p,q,c));$("cnt").textContent=prods.length;
+  $("list").innerHTML=l.length?l.map(p=>'<div class="p"><div class="ph"><div><span class="pn">'+esc(p.name)+'</span>'+(p.promo?'<span class="tag g">promoção</span>':'')+(p.hasPhoto?'<span class="tag">com foto</span>':'')+(p.out?'<span class="tag w">em falta</span>':'')+'<div class="meta">'+esc(p.cat)+' · por '+esc(p.un)+'</div></div><div class="bar" style="margin:0"><button class="btn ghost sm" data-ed="'+p.id+'">Editar</button><button class="btn ghost sm" data-out="'+p.id+'">'+(p.out?'Voltou':'Em falta')+'</button><button class="btn ghost sm" data-del="'+p.id+'">Excluir</button></div></div>'+p.vars.map(v=>'<div class="v"><span>'+(v.n?esc(v.n):"Padrão")+' · <span class="meta">'+(v.s==null?"estoque não controlado":"estoque: "+v.s)+'</span></span><span class="pr">'+money(v.p)+'</span></div>').join("")+'</div>').join(""):'<div class="empty">Nenhum produto cadastrado.</div>';
+  $("mp").textContent="Vagas de foto: "+used(null)+" de "+M.plan.photos+" · Campanhas por mês: "+M.plan.campaigns}
+$("q1").oninput=renderList;$("f1").onchange=renderList;
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+  try{
+    if(d.rm){if(document.querySelectorAll("#vars .vr").length>1)t.closest(".vr").remove()}
+    else if(d.rp){curPhoto="";photoChanged=true;$("foto").value="";showPv()}
+    else if(d.ed){const p=prods.find(x=>x.id===d.ed);editing=p.id;photoChanged=false;curPhoto="";$("nome").value=p.name;$("cat").value=p.cat;$("un").value=p.un;$("promo").checked=!!p.promo;$("old").value=p.old==null?"":String(p.old).replace(".",",");$("vars").innerHTML="";p.vars.forEach(v=>varRow(v.n,v.p,v.s));$("ft").textContent="Editar produto";$("save").textContent="Salvar alterações";$("cancel").classList.remove("hide");
+      if(p.hasPhoto){const ph=await getDoc(doc(db,"markets",MID,"photos",p.id));if(ph.exists())curPhoto=ph.data().data}showPv();window.scrollTo({top:0,behavior:"smooth"})}
+    else if(d.out){const p=prods.find(x=>x.id===d.out),b=writeBatch(db);b.update(doc(db,"markets",MID,"products",p.id),{out:!p.out});await b.commit();await loadProds()}
+    else if(d.del){if(confirm("Excluir este produto?")){const b=writeBatch(db);b.delete(doc(db,"markets",MID,"products",d.del));b.delete(doc(db,"markets",MID,"photos",d.del));await b.commit();await loadProds()}}
+  }catch(er){say(errTxt(er),"e")}
+});
+
+
+let orders=[],recs=[];
+const oid=n=>"#"+String(n).padStart(4,"0"),fdt=t=>new Date(t).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+function tab(t){["sPed","sProd","sRec"].forEach(x=>$(x).classList.toggle("hide",x!==t));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t))}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-tab]");if(t)tab(t.dataset.tab)});
+async function loadCfg(){const s=await getDoc(doc(db,"markets",MID,"config","loja")),c=s.exists()?s.data():{};$("pix").value=c.pix||"";$("dlv").checked=!!c.deliver}
+$("scfg").onclick=async()=>{try{const b=writeBatch(db);b.set(doc(db,"markets",MID,"config","loja"),{pix:$("pix").value.trim(),deliver:$("dlv").checked});await b.commit();$("cmsg").textContent="Salvo."}catch(e){$("cmsg").textContent=errTxt(e)}};
+async function loadOrders(){const[a,b]=await Promise.all([getDocs(col("orders")),getDocs(col("receipts"))]);orders=a.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.num-x.num);recs=b.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.num-x.num);renderOrders()}
+$("rel").onclick=loadOrders;
+function renderOrders(){
+  const open=orders.filter(o=>o.status!=="concluido");$("ocnt").textContent=open.length;
+  $("olist").innerHTML=open.length?open.map(o=>'<div class="p"><div class="ph"><div><span class="pn">Pedido '+oid(o.num)+'</span><span class="tag '+(o.paid?"g":"w")+'">'+(o.paid?"PAGO":"NÃO PAGO")+'</span><span class="tag">'+(o.status==="novo"?"novo":"em separação")+'</span><div class="meta">'+esc(o.nome+" "+o.sobrenome)+' · <a href="https://wa.me/'+esc(o.whatsapp)+'" target="_blank" rel="noopener">WhatsApp '+esc(o.whatsapp)+'</a></div><div class="meta">'+fdt(o.ts)+' · '+esc(o.mode)+' · '+esc(o.pay)+'</div></div><div class="pr">'+money(o.total)+'</div></div><div class="meta" style="margin:6px 0">'+o.items.map(i=>i.q+"× "+esc(i.name)+(i.v?" ("+esc(i.v)+")":"")).join(" · ")+'</div>'+(o.obs?'<div class="meta">Obs.: '+esc(o.obs)+'</div>':"")+'<div class="bar">'+(o.status==="novo"?'<button class="btn sm" data-oa="acc" data-id="'+o.id+'">Aceitar e baixar estoque</button>':"")+(o.paid?"":'<button class="btn ghost sm" data-oa="pay" data-id="'+o.id+'">Marcar como pago</button>')+(o.hasProof?'<button class="btn ghost sm" data-oa="pf" data-id="'+o.id+'">Ver comprovante</button>':"")+'<button class="btn ghost sm" data-oa="end" data-id="'+o.id+'">Concluir e gerar recibo</button></div><div id="pf'+o.id+'"></div></div>').join(""):'<div class="empty">Nenhum pedido em aberto.</div>';
+  const tot=recs.reduce((a,r)=>a+r.valor,0);$("rsum").textContent=recs.length+" recibos · total "+money(tot);
+  $("rlist").innerHTML=recs.length?recs.map(r=>'<div class="p"><div class="ph"><div><span class="pn">Pedido '+oid(r.num)+'</span> · '+esc(r.nome)+'<div class="meta">'+fdt(r.ts)+' · '+esc(r.forma)+(r.pago?"":" · não pago")+'</div></div><div class="pr">'+money(r.valor)+'</div></div></div>').join(""):'<div class="empty">Nenhum recibo ainda.</div>'}
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-oa]");if(!t)return;const o=orders.find(x=>x.id===t.dataset.id),a=t.dataset.oa,b=writeBatch(db),od=doc(db,"markets",MID,"orders",o.id);
+  try{
+    if(a==="acc"){const chg={};o.items.forEach(i=>{const p=prods.find(x=>x.id===i.pid);if(!p||!p.vars[i.vi]||p.vars[i.vi].s==null)return;chg[i.pid]=chg[i.pid]||JSON.parse(JSON.stringify(p.vars));chg[i.pid][i.vi].s=Math.max(0,chg[i.pid][i.vi].s-i.q)});Object.keys(chg).forEach(k=>b.update(doc(db,"markets",MID,"products",k),{vars:chg[k]}));b.update(od,{status:"aceito"});await b.commit();await loadProds()}
+    else if(a==="pay"){b.update(od,{paid:true});await b.commit()}
+    else if(a==="pf"){const s=await getDoc(doc(db,"markets",MID,"proofs",o.id));$("pf"+o.id).innerHTML=s.exists()?'<img src="'+s.data().data+'" alt="Comprovante do Pix" style="max-width:100%;border-radius:10px;margin-top:8px">':'<div class="meta">Comprovante não encontrado.</div>';return}
+    else if(a==="end"){if(!o.paid&&!confirm("Este pedido ainda não está marcado como pago. Concluir mesmo assim?"))return;b.update(od,{status:"concluido",hasProof:false});b.set(doc(db,"markets",MID,"receipts",o.id),{num:o.num,nome:o.nome+" "+o.sobrenome,whatsapp:o.whatsapp,valor:o.total,forma:o.pay,pago:!!o.paid,ts:o.ts,doneTs:Date.now()});b.delete(doc(db,"markets",MID,"proofs",o.id));await b.commit()}
+    await loadOrders()}catch(er){alert(errTxt(er))}});
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+let ip=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();ip=e;$("inst").classList.remove("hide")});
+$("inst").onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice;ip=null;$("inst").classList.add("hide")};
+addEventListener("appinstalled",()=>$("inst").classList.add("hide"));
+</script>
+</body>
+</html>
