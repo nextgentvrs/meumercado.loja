@@ -38,6 +38,10 @@ input[type=checkbox]{width:20px;height:20px}input[type=file]{padding:9px 12px;he
 .msg{font-size:14px;margin-top:10px;min-height:20px}.e{color:var(--warn)}
 .empty{color:var(--mut);text-align:center;padding:24px 0}
 .tabs{display:flex;gap:4px;background:var(--chip);padding:4px;border-radius:999px;margin-bottom:14px}.tabs button{flex:1;border:0;background:none;color:var(--mut);border-radius:999px;font:600 14px inherit;font-family:inherit;min-height:44px;cursor:pointer}.tabs button.on{background:var(--ac);color:var(--acink)}a{color:var(--ac)}
+textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px}
+.sw{width:40px;height:40px;border-radius:20px;border:2px solid var(--line);cursor:pointer}
 .hide{display:none!important}.login{max-width:380px;margin:12vh auto 0}
 .logo{display:inline-flex;width:44px;height:44px;border-radius:12px;background:var(--ac);color:var(--acink);align-items:center;justify-content:center;font-size:24px;margin-right:10px;vertical-align:middle}
 </style>
@@ -53,10 +57,18 @@ input[type=checkbox]{width:20px;height:20px}input[type=file]{padding:9px 12px;he
 <div id="vA" class="hide">
 <div class="top"><div><span class="logo" id="mi"></span><h1 style="display:inline;vertical-align:middle" id="mn"></h1><div class="meta" id="mp"></div></div><div class="bar" style="margin:0"><button class="btn sm hide" id="inst" type="button">Instalar app</button><button class="btn ghost sm" id="out" type="button">Sair</button></div></div>
 
-<div class="tabs"><button class="on" data-tab="sPed" type="button">Pedidos</button><button data-tab="sProd" type="button">Produtos</button><button data-tab="sRec" type="button">Recibos e loja</button></div>
+<div class="tabs"><button class="on" data-tab="sPed" type="button">Pedidos</button><button data-tab="sProd" type="button">Produtos</button><button data-tab="sDiv" type="button">Divulgar</button><button data-tab="sRec" type="button">Loja</button></div>
 <div id="sPed"><div class="card"><h2>Pedidos em aberto (<span id="ocnt">0</span>)</h2><div class="bar" style="margin:0 0 10px"><button class="btn ghost sm" id="rel" type="button">Atualizar</button></div><div id="olist"></div></div></div>
 <div id="sRec" class="hide"><div class="card"><h2>Recibos dos pedidos concluídos</h2><div class="meta" id="rsum"></div><div id="rlist"></div></div>
 <div class="card"><h2>Configurações da loja</h2><div class="row"><label>Chave Pix do mercado<input id="pix" type="text" placeholder="CNPJ, telefone ou e-mail"></label><label class="ck" style="align-self:end"><input id="dlv" type="checkbox"> O mercado faz entrega</label></div><button class="btn sm" id="scfg" type="button">Salvar</button><div class="msg" id="cmsg" role="status"></div></div></div>
+<div id="sDiv" class="hide">
+<div class="card"><h2>Horário de funcionamento</h2><label>Aparece no topo do app do cliente<input id="hor" type="text" placeholder="Seg a sáb: 7h às 20h · Dom: 8h às 13h"></label><div class="bar"><button class="btn sm" id="shor" type="button">Salvar horário</button></div><div class="msg" id="hmsg" role="status"></div></div>
+<div class="card"><h2>Aviso para os clientes</h2><label>Mensagem (até 280 caracteres)<textarea id="ntx" maxlength="280" rows="3" placeholder="Ex.: Amanhã abriremos às 9h. Chegou pão fresquinho!"></textarea></label><div class="bar"><button class="btn sm" id="pnot" type="button">Publicar aviso</button></div><div class="msg" id="nmsg" role="status"></div><div id="nlist"></div></div>
+<div class="card"><h2>Vídeo de promoção de hoje</h2><div class="meta" style="margin-bottom:10px">Adicione até 8 imagens (foto sua ou banner criado aqui). O app monta o vídeo de até 40 segundos e mostra para os clientes. Um vídeo por dia: publicar de novo no mesmo dia substitui o anterior, e os dias antigos são apagados.</div>
+<div id="slides" class="bar" style="margin:6px 0 12px"></div>
+<div class="bar"><label class="btn ghost sm" style="flex-direction:row;color:var(--ink);cursor:pointer">Adicionar foto<input id="sf" type="file" accept="image/*" hidden></label><button class="btn ghost sm" id="mkb" type="button">Criar banner</button><button class="btn sm" id="pvid" type="button">Publicar vídeo de hoje</button></div>
+<div class="meta" id="vinfo" style="margin-top:8px"></div><div class="msg" id="vmsg" role="status"></div></div>
+</div>
 <div id="sProd" class="hide">
 <div class="card"><h2 id="ft">Cadastrar produto</h2>
 <label style="margin-bottom:12px">Nome do produto<input id="nome" type="text" placeholder="Ex.: Refrigerante Coca-Cola 2L"></label>
@@ -78,6 +90,13 @@ input[type=checkbox]{width:20px;height:20px}input[type=file]{padding:9px 12px;he
 </div>
 </div>
 
+<div class="modal hide" id="bm"><div class="sheet"><h2>Criar banner</h2>
+<canvas id="bcv" width="960" height="540" style="width:100%;border-radius:12px;background:#ddd;margin-bottom:12px"></canvas>
+<label style="margin-bottom:10px">Título<input id="bt" type="text" maxlength="60" placeholder="Ex.: Oferta do dia"></label>
+<label style="margin-bottom:10px">Subtítulo ou preço (opcional)<input id="bs" type="text" maxlength="60" placeholder="Ex.: Tomate kg por R$ 5,99"></label>
+<div style="font-size:13px;font-weight:600;color:var(--mut);margin-bottom:6px">Cor de fundo</div><div class="bar" id="sws" style="margin:0 0 12px"></div>
+<label style="margin-bottom:12px">Foto de fundo (opcional)<input id="bf" type="file" accept="image/*"></label>
+<div class="bar"><button class="btn" id="badd" type="button">Adicionar ao vídeo</button><button class="btn ghost" id="bx" type="button">Cancelar</button></div></div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
@@ -105,7 +124,7 @@ onAuthStateChanged(auth,async u=>{
     MID=us.data().marketId;M=(await getDoc(doc(db,"markets",MID))).data();
     if(!M.active){alert("Este mercado está desativado. Fale com a Next Gen TV.");signOut(auth);return}
     const c=M.colors||{};document.documentElement.style.setProperty("--ac",c.primary||"#1F7A4D");document.documentElement.style.setProperty("--acink",c.onPrimary||"#fff");
-    $("mi").textContent=M.icon||"🛒";$("mn").textContent=M.name;resetForm();await loadProds();await loadCfg();await loadOrders();
+    $("mi").textContent=M.icon||"🛒";$("mn").textContent=M.name;resetForm();await loadProds();await loadCfg();await loadOrders();await loadDiv();
   }catch(e){alert(errTxt(e));signOut(auth)}
 });
 const col=n=>collection(db,"markets",MID,n);
@@ -154,10 +173,10 @@ document.addEventListener("click",async e=>{const t=e.target.closest("button");i
 
 let orders=[],recs=[];
 const oid=n=>"#"+String(n).padStart(4,"0"),fdt=t=>new Date(t).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
-function tab(t){["sPed","sProd","sRec"].forEach(x=>$(x).classList.toggle("hide",x!==t));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t))}
+function tab(t){["sPed","sProd","sRec","sDiv"].forEach(x=>$(x).classList.toggle("hide",x!==t));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t))}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-tab]");if(t)tab(t.dataset.tab)});
-async function loadCfg(){const s=await getDoc(doc(db,"markets",MID,"config","loja")),c=s.exists()?s.data():{};$("pix").value=c.pix||"";$("dlv").checked=!!c.deliver}
-$("scfg").onclick=async()=>{try{const b=writeBatch(db);b.set(doc(db,"markets",MID,"config","loja"),{pix:$("pix").value.trim(),deliver:$("dlv").checked});await b.commit();$("cmsg").textContent="Salvo."}catch(e){$("cmsg").textContent=errTxt(e)}};
+async function loadCfg(){const s=await getDoc(doc(db,"markets",MID,"config","loja")),c=s.exists()?s.data():{};$("pix").value=c.pix||"";$("dlv").checked=!!c.deliver;$("hor").value=c.horario||""}
+$("scfg").onclick=async()=>{try{const b=writeBatch(db);b.set(doc(db,"markets",MID,"config","loja"),{pix:$("pix").value.trim(),deliver:$("dlv").checked},{merge:true});await b.commit();$("cmsg").textContent="Salvo."}catch(e){$("cmsg").textContent=errTxt(e)}};
 async function loadOrders(){const[a,b]=await Promise.all([getDocs(col("orders")),getDocs(col("receipts"))]);orders=a.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.num-x.num);recs=b.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.num-x.num);renderOrders()}
 $("rel").onclick=loadOrders;
 function renderOrders(){
@@ -172,6 +191,37 @@ document.addEventListener("click",async e=>{const t=e.target.closest("[data-oa]"
     else if(a==="pf"){const s=await getDoc(doc(db,"markets",MID,"proofs",o.id));$("pf"+o.id).innerHTML=s.exists()?'<img src="'+s.data().data+'" alt="Comprovante do Pix" style="max-width:100%;border-radius:10px;margin-top:8px">':'<div class="meta">Comprovante não encontrado.</div>';return}
     else if(a==="end"){if(!o.paid&&!confirm("Este pedido ainda não está marcado como pago. Concluir mesmo assim?"))return;b.update(od,{status:"concluido",hasProof:false});b.set(doc(db,"markets",MID,"receipts",o.id),{num:o.num,nome:o.nome+" "+o.sobrenome,whatsapp:o.whatsapp,valor:o.total,forma:o.pay,pago:!!o.paid,ts:o.ts,doneTs:Date.now()});b.delete(doc(db,"markets",MID,"proofs",o.id));await b.commit()}
     await loadOrders()}catch(er){alert(errTxt(er))}});
+
+const MAXS=8,MAXB=700000,SW=["#1F7A4D","#C2410C","#1D5FD1","#B4235C","#111827","#B45309"],today=new Date().toLocaleDateString("sv-SE");
+let slides=[],notices=[],bcol=SW[0],bimg=null;
+const vm=t=>$("vmsg").textContent=t;
+function fit(img,w,h){const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d"),k=Math.max(w/img.width,h/img.height),dw=img.width*k,dh=img.height*k;x.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);return c}
+const loadImg=f=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>r(im);im.src=fr.result};fr.readAsDataURL(f)});
+const tot=()=>slides.reduce((a,u)=>a+u.length,0);
+function addSlide(u){if(slides.length>=MAXS){vm("Máximo de "+MAXS+" imagens.");return false}if(tot()+u.length>MAXB){vm("O vídeo ficou pesado. Remova uma imagem.");return false}vm("");slides.push(u);renderSlides();return true}
+function renderSlides(){const n=slides.length,per=n?Math.min(5,40/n):0;
+  $("slides").innerHTML=slides.map((u,i)=>'<div style="position:relative"><img src="'+u+'" alt="Imagem '+(i+1)+'" style="width:96px;height:54px;object-fit:cover;border-radius:8px"><button type="button" class="ic" data-rs="'+i+'" aria-label="Remover imagem" style="position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:14px;font-size:16px;background:var(--card)">×</button></div>').join("");
+  $("vinfo").textContent=n?n+" de "+MAXS+" imagens · "+Math.round(per*n)+" s de vídeo · cerca de "+Math.round(tot()/1024)+" KB":"Nenhuma imagem ainda."}
+async function loadDiv(){try{const[d,n]=await Promise.all([getDoc(doc(db,"markets",MID,"daily",today)),getDocs(col("notices"))]);slides=d.exists()?d.data().slides||[]:[];notices=n.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>b.ts-a.ts)}catch(e){vm(errTxt(e))}renderSlides();renderNotices()}
+function renderNotices(){$("nlist").innerHTML=notices.slice(0,10).map(n=>'<div class="p"><div class="ph"><div>'+esc(n.text)+'<div class="meta">'+fdt(n.ts)+'</div></div><button class="btn ghost sm" type="button" data-dn="'+n.id+'">Excluir</button></div></div>').join("")}
+$("shor").onclick=async()=>{try{const b=writeBatch(db);b.set(doc(db,"markets",MID,"config","loja"),{horario:$("hor").value.trim()},{merge:true});await b.commit();$("hmsg").textContent="Horário salvo."}catch(e){$("hmsg").textContent=errTxt(e)}};
+$("pnot").onclick=async()=>{const t=$("ntx").value.trim();if(!t)return;try{const b=writeBatch(db);b.set(doc(col("notices")),{text:t,ts:Date.now()});await b.commit();$("ntx").value="";$("nmsg").textContent="Aviso publicado.";await loadDiv()}catch(e){$("nmsg").textContent=errTxt(e)}};
+$("sf").onchange=async function(){const f=this.files[0];this.value="";if(!f)return;const c=fit(await loadImg(f),960,540);let u=c.toDataURL("image/jpeg",.6);if(u.length>110000)u=c.toDataURL("image/jpeg",.45);addSlide(u)};
+$("pvid").onclick=async()=>{if(!slides.length){vm("Adicione ao menos uma imagem.");return}try{const b=writeBatch(db),s=await getDocs(col("daily"));s.docs.forEach(d=>{if(d.id!==today)b.delete(d.ref)});b.set(doc(db,"markets",MID,"daily",today),{slides,per:Math.min(5,40/slides.length),ts:Date.now()});await b.commit();vm("Vídeo de hoje publicado. Os clientes já veem na tela inicial.")}catch(e){vm(errTxt(e))}};
+function wrapT(x,t,cx,cy,mw,font,lh){x.font=font;const ls=[];let l="";t.split(" ").forEach(a=>{const n=l?l+" "+a:a;if(x.measureText(n).width>mw&&l){ls.push(l);l=a}else l=n});ls.push(l);const y0=cy-(ls.length-1)*lh/2;ls.forEach((ln,i)=>x.fillText(ln,cx,y0+i*lh))}
+function drawBanner(){const c=$("bcv"),x=c.getContext("2d");if(bimg){x.drawImage(fit(bimg,960,540),0,0);x.fillStyle="rgba(0,0,0,.45)";x.fillRect(0,0,960,540)}else{x.fillStyle=bcol;x.fillRect(0,0,960,540)}
+  x.fillStyle="#fff";x.textAlign="center";x.textBaseline="middle";const t=$("bt").value.trim()||"Título da promoção",s=$("bs").value.trim();
+  wrapT(x,t,480,s?220:270,860,"800 72px sans-serif",84);if(s)wrapT(x,s,480,410,860,"600 44px sans-serif",54)}
+$("sws").innerHTML=SW.map(c=>'<button type="button" class="sw" data-bc="'+c+'" aria-label="Cor '+c+'" style="background:'+c+'"></button>').join("");
+$("mkb").onclick=()=>{bimg=null;bcol=SW[0];$("bt").value="";$("bs").value="";$("bf").value="";drawBanner();$("bm").classList.remove("hide")};
+$("bt").oninput=$("bs").oninput=drawBanner;
+$("bf").onchange=async function(){const f=this.files[0];bimg=f?await loadImg(f):null;drawBanner()};
+$("bx").onclick=()=>$("bm").classList.add("hide");
+$("badd").onclick=()=>{const c=$("bcv");let u=c.toDataURL("image/jpeg",.7);if(u.length>110000)u=c.toDataURL("image/jpeg",.5);if(addSlide(u))$("bm").classList.add("hide")};
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+  if(d.rs!==undefined){slides.splice(+d.rs,1);renderSlides()}
+  else if(d.bc){bcol=d.bc;bimg=null;$("bf").value="";drawBanner()}
+  else if(d.dn){try{const b=writeBatch(db);b.delete(doc(db,"markets",MID,"notices",d.dn));await b.commit();await loadDiv()}catch(er){$("nmsg").textContent=errTxt(er)}}});
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 let ip=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();ip=e;$("inst").classList.remove("hide")});
 $("inst").onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice;ip=null;$("inst").classList.add("hide")};
